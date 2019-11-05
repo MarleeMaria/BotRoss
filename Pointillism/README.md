@@ -1,4 +1,4 @@
-![example](/images/lake_drawing.jpg)
+![example](images/landscape_drawing.jpg)
 
 # Pointillism
 This repo contains a python application that converts a photo to a pointillist painting.
