@@ -2,7 +2,7 @@ import bisect
 import scipy.spatial
 import numpy as np
 import random
-from .utils import regulate, limit_size, clipped_addition
+from .utils import regulate, limit_size, clipped_addition, printGrd
 from .vector_field import VectorField
 from .color_palette import ColorPalette
 
@@ -34,13 +34,17 @@ def randomized_grid(h, w, scale):
     r = scale//2
 
     grid = []
-    for i in range(0, h, scale):
+    for i in range(0, h, 10):#scale):
         for j in range(0, w, scale):
-            y = random.randint(-r, r) + i
-            x = random.randint(-r, r) + j
+            #y = random.randint(-r, r) + i
+            #x = random.randint(-r, r) + j
+
+            y = i#random.randint(-r, r) + i
+            x = j#random.randint(-r, r) + j
 
             grid.append((y % h, x % w))
 
-    random.shuffle(grid)
-    return grid
 
+    #random.shuffle(grid)
+    printGrd(grid)
+    return grid

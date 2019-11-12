@@ -37,3 +37,7 @@ def regulate(img, hue=0, saturation=0, luminosity=0):
     clipped_addition(hsv[:, :, 1], saturation)
     clipped_addition(hsv[:, :, 2], luminosity)
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR_FULL)
+
+
+def printGrd(grids):
+        open('your_file.txt', 'w').write('\n'.join('%s %s' % x for x in grids))

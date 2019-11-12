@@ -2,6 +2,7 @@ import cv2
 import argparse
 import math
 import progressbar
+import numpy as np
 from pointillism import *
 
 parser = argparse.ArgumentParser(description='...')
@@ -52,9 +53,14 @@ gradient.smooth(gradient_smoothing_radius)
 
 print("Drawing image...")
 # create a "cartonized" version of the image to use as a base for the painting
+#res = cv2.medianBlur(img, 11)
+#blank_image = np.zeros((height,width,3), np.uint8)
 res = cv2.medianBlur(img, 11)
+
+
 # define a randomized grid of locations for the brush strokes
-grid = randomized_grid(img.shape[0], img.shape[1], scale=3)
+#LOOOK HERE FUCK WITH THE SCALE
+grid = randomized_grid(img.shape[0], img.shape[1], scale=50)
 batch_size = 10000
 
 bar = progressbar.ProgressBar()
