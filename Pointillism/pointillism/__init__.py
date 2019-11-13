@@ -36,15 +36,15 @@ def randomized_grid(h, w, scale):
     grid = []
     for i in range(0, h, 10):#scale):
         for j in range(0, w, scale):
-            #y = random.randint(-r, r) + i
-            #x = random.randint(-r, r) + j
+            y = random.randint(-r, r) + i
+            x = random.randint(-r, r) + j
 
-            y = i#random.randint(-r, r) + i
-            x = j#random.randint(-r, r) + j
+            #y = i#random.randint(-r, r) + i
+            #x = j#random.randint(-r, r) + j
 
             grid.append((y % h, x % w))
 
 
-    #random.shuffle(grid)
+    random.shuffle(grid)
     printGrd(grid)
     return grid

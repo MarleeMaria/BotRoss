@@ -54,13 +54,13 @@ gradient.smooth(gradient_smoothing_radius)
 print("Drawing image...")
 # create a "cartonized" version of the image to use as a base for the painting
 #res = cv2.medianBlur(img, 11)
-#blank_image = np.zeros((height,width,3), np.uint8)
-res = cv2.medianBlur(img, 11)
-
+blank_image = np.zeros((img.shape[0], img.shape[1],3), np.uint8)
+res = cv2.medianBlur(blank_image, 11)
+res.fill(255)
 
 # define a randomized grid of locations for the brush strokes
 #LOOOK HERE FUCK WITH THE SCALE
-grid = randomized_grid(img.shape[0], img.shape[1], scale=50)
+grid = randomized_grid(img.shape[0], img.shape[1], scale=30)
 batch_size = 10000
 
 bar = progressbar.ProgressBar()
@@ -72,12 +72,14 @@ for h in bar(range(0, len(grid), batch_size)):
     color_probabilities = compute_color_probabilities(pixels, palette, k=200)
 
     for i, (y, x) in enumerate(grid[h:min(h + batch_size, len(grid))]):
+        #Get colour bellow?
         color = color_select(color_probabilities[i], palette)
         angle = math.degrees(gradient.direction(y, x)) + 90
         length = int(round(stroke_scale + stroke_scale * math.sqrt(gradient.magnitude(y, x))))
 
         # draw the brush stroke
         cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
+        #append to text file...
 
 
 cv2.imshow("res", limit_size(res, 1080))
