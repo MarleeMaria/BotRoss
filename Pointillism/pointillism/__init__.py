@@ -34,8 +34,11 @@ def randomized_grid(h, w, scale):
     r = scale//2
 
     grid = []
-    for i in range(0, h, 10):#scale):
+    #change the scale to change the 'step size'
+    #use that to limit how many strokes in the x or y are done
+    for i in range(0, h, scale):
         for j in range(0, w, scale):
+            #Figure out what the differences is
             y = random.randint(-r, r) + i
             x = random.randint(-r, r) + j
 
@@ -44,7 +47,7 @@ def randomized_grid(h, w, scale):
 
             grid.append((y % h, x % w))
 
-
+    #Figure out what the differences is
     random.shuffle(grid)
     printGrd(grid)
     return grid
