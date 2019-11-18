@@ -37,8 +37,8 @@ gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 print("Computing color palette...")
 palette = ColorPalette.from_image(img, args.palette_size)
 
-print("Extending color palette...")
-palette = palette.extend([(0, 50, 0), (15, 30, 0), (-15, 30, 0)])
+# print("Extending color palette...")
+# palette = palette.extend([(0, 50, 0), (15, 30, 0), (-15, 30, 0)])
 
 # display the color palette
 cv2.imshow("palette", palette.to_image())
