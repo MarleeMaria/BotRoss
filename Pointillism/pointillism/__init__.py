@@ -39,15 +39,15 @@ def randomized_grid(h, w, scale):
     for i in range(0, h, scale):
         for j in range(0, w, scale):
             #Figure out what the differences is
-            y = random.randint(-r, r) + i
-            x = random.randint(-r, r) + j
+            #y = random.randint(-r, r) + i
+            #x = random.randint(-r, r) + j
 
-            #y = i#random.randint(-r, r) + i
-            #x = j#random.randint(-r, r) + j
+            y = i#random.randint(-r, r) + i
+            x = j#random.randint(-r, r) + j
 
             grid.append((y % h, x % w))
 
     #Figure out what the differences is
-    random.shuffle(grid)
+    #random.shuffle(grid)
     printGrd(grid)
     return grid
