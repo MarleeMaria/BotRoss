@@ -57,6 +57,7 @@ res = cv2.medianBlur(img, 11)
 grid = randomized_grid(img.shape[0], img.shape[1], scale=3)
 batch_size = 10000
 
+output_file = open("output.txt","w+")
 bar = progressbar.ProgressBar()
 for h in bar(range(0, len(grid), batch_size)):
     # get the pixel colors at each point of the grid
@@ -70,6 +71,12 @@ for h in bar(range(0, len(grid), batch_size)):
         angle = math.degrees(gradient.direction(y, x)) + 90
         length = int(round(stroke_scale + stroke_scale * math.sqrt(gradient.magnitude(y, x))))
 
+        # calculate start and end points
+        start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)
+        end_point  = round(length / 2 * math.cos(math.radians(angle) + math.pi) + x), round(length / 2 * math.sin(math.radians(angle) + math.pi) + y)
+
+        # write to output file
+        output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
         # draw the brush stroke
         cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
 
