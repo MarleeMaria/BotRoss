@@ -43,8 +43,6 @@ def randomized_grid(h, w, scale):
             #x = j#random.randint(-r, r) + j
 
             grid.append((y % h, x % w))
-
-
     random.shuffle(grid)
     printGrd(grid)
     return grid

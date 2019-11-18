@@ -4,10 +4,12 @@ import math
 from sklearn.cluster import KMeans
 from .utils import limit_size, regulate
 
-
+# lets break this
 class ColorPalette:
     def __init__(self, colors, base_len=0):
         self.colors = colors
+        # print(self.colors)
+        print(colors)
         self.base_len = base_len if base_len > 0 else len(colors)
 
     @staticmethod
@@ -17,6 +19,12 @@ class ColorPalette:
 
         clt = KMeans(n_clusters=n, n_jobs=1, n_init=n_init)
         clt.fit(img.reshape(-1, 3))
+        # print(clt)
+        # black and white
+        clt.cluster_centers_ = [[225, 225, 225], [0, 0, 0]]
+        # any colors we have!
+        # clt.cluster_centers_ = [[255,255,255], [0,255,0], [255,0,0], [0,0,255], [255, 51, 153] , [255, 255, 0], [255,0,255], [0, 255, 255]]
+
 
         return ColorPalette(clt.cluster_centers_)
 
