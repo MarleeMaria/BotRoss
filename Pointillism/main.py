@@ -72,8 +72,8 @@ for h in bar(range(0, len(grid), batch_size)):
         length = int(round(stroke_scale + stroke_scale * math.sqrt(gradient.magnitude(y, x))))
 
         # calculate start and end points
-        start_point = (length / 2 * math.cos(math.radians(angle)) + x, length / 2 * math.sin(math.radians(angle)) + y)
-        end_point  =(length / 2 * math.cos(math.radians(angle) + math.pi) + x, length / 2 * math.sin(math.radians(angle) + math.pi) + y)
+        start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)
+        end_point  = round(length / 2 * math.cos(math.radians(angle) + math.pi) + x), round(length / 2 * math.sin(math.radians(angle) + math.pi) + y)
 
         # write to output file
         output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
