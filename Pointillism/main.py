@@ -110,11 +110,12 @@ for h in bar(range(0, len(grid), batch_size)):
         br_xy = (round(end_x-hheight),round(end_y-hwidth))
 
         #b_code.write("%s, %s %s\n" % (tl_xy,br_xy,color))
+        #output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
         #change into a rect call
         cv2.rectangle(res, (tl_xy), (br_xy), color, -1)
         #cv2.rectangle(res, (start_point), (end_point), color, -1)
 
-b_code.close()
+#b_code.close()
 cv2.imshow("res", limit_size(res, 1080))
 cv2.imwrite(res_path, res)
 cv2.waitKey(0)
