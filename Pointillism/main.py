@@ -38,8 +38,8 @@ gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 print("Computing color palette...")
 palette = ColorPalette.from_image(img, args.palette_size)
 
-print("Extending color palette...")
-palette = palette.extend([(0, 50, 0), (15, 30, 0), (-15, 30, 0)])
+# print("Extending color palette...")
+# palette = palette.extend([(0, 50, 0), (15, 30, 0), (-15, 30, 0)])
 
 # display the color palette
 #____Commented out so i dont have to see it each time____
@@ -67,8 +67,7 @@ res.fill(255)
 grid = randomized_grid(img.shape[0], img.shape[1], scale=10)
 batch_size = 10000
 
-b_code = open("b_code.txt", 'w')
-
+output_file = open("output.txt","w+")
 bar = progressbar.ProgressBar()
 for h in bar(range(0, len(grid), batch_size)):
 
@@ -87,14 +86,12 @@ for h in bar(range(0, len(grid), batch_size)):
         angle = math.degrees(gradient.direction(y, x)) + 90
         length = int(round(stroke_scale + stroke_scale * math.sqrt(gradient.magnitude(y, x))))
 
-        #Write to b_code
-        #Top center
-        start_point = (round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y))
-        #Bottom center
-        end_point  =(round(length / 2 * math.cos(math.radians(angle) + math.pi) + x), round(length / 2 * math.sin(math.radians(angle) + math.pi) + y))
+        # calculate start and end points
+        start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)
+        end_point  = round(length / 2 * math.cos(math.radians(angle) + math.pi) + x), round(length / 2 * math.sin(math.radians(angle) + math.pi) + y)
 
-        b_code.write("%s, %s %s\n" % (start_point,end_point,color))
-
+        # write to output file
+        output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
         # draw the brush stroke
         #cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
         #append to text file...
