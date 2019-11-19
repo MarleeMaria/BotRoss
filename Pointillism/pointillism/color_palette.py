@@ -37,7 +37,8 @@ class ColorPalette:
 
     def to_image(self):
         cols = self.base_len
-        rows = int(math.ceil(len(self.colors) / cols))
+        #rows = int(math.ceil(len(self.colors) / cols))
+        rows = int(len(self.colors) / cols)
 
         res = np.zeros((rows * 80, cols * 80, 3), dtype=np.uint8)
         for y in range(rows):
