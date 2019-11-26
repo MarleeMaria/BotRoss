@@ -21,9 +21,9 @@ class ColorPalette:
         clt.fit(img.reshape(-1, 3))
         # print(clt)
         # black and white
-        clt.cluster_centers_ = [[225, 225, 225], [0, 0, 0]]
+        # clt.cluster_centers_ = [[225, 225, 225], [0, 0, 0]]
         # any colors we have!
-        # clt.cluster_centers_ = [[255,255,255], [0,255,0], [255,0,0], [0,0,255], [255, 51, 153] , [255, 255, 0], [255,0,255], [0, 255, 255]]
+        clt.cluster_centers_ = [[255,255,255], [0,255,0], [255,0,0], [0,0,255], [255, 51, 153] , [255, 255, 0], [255,0,255], [0, 255, 255]]
 
 
         return ColorPalette(clt.cluster_centers_)

@@ -43,8 +43,8 @@ palette = ColorPalette.from_image(img, args.palette_size)
 
 # display the color palette
 #____Commented out so i dont have to see it each time____
-# cv2.imshow("palette", palette.to_image())
-# cv2.waitKey(200)
+cv2.imshow("palette", palette.to_image())
+cv2.waitKey(200)
 
 print("Computing gradient...")
 gradient = VectorField.from_gradient(gray)
@@ -93,7 +93,7 @@ for h in bar(range(0, len(grid), batch_size)):
         # write to output file
         output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
         # draw the brush stroke
-        #cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
+        cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
         #append to text file...
 
         #these are the center x,y's for the start/end of the rectangle
@@ -112,8 +112,8 @@ for h in bar(range(0, len(grid), batch_size)):
         #b_code.write("%s, %s %s\n" % (tl_xy,br_xy,color))
         #output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
         #change into a rect call
-        cv2.rectangle(res, (tl_xy), (br_xy), color, -1)
-        #cv2.rectangle(res, (start_point), (end_point), color, -1)
+        # cv2.rectangle(res, (tl_xy), (br_xy), color, -1)
+        # cv2.rectangle(res, (start_point), (end_point), color, -1)
 
 #b_code.close()
 cv2.imshow("res", limit_size(res, 1080))
