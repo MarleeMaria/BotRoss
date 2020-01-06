@@ -5,11 +5,19 @@ import progressbar
 import numpy as np
 from pointillism import *
 
+# GLOBAL PARAMETERS
+MIN_HEIGHT_CM = 5
+MIN_WIDTH_CM = 5
+MAX_HEIGHT_CM = 30
+MAX_WIDTH_CM = 30
+
 parser = argparse.ArgumentParser(description='...')
 parser.add_argument('--palette-size', default=20, type=int, help="Number of colors of the base palette")
 parser.add_argument('--stroke-scale', default=0, type=int, help="Scale of the brush strokes (0 = automatic)")
 parser.add_argument('--gradient-smoothing-radius', default=0, type=int, help="Radius of the smooth filter applied to the gradient (0 = automatic)")
 parser.add_argument('--limit-image-size', default=0, type=int, help="Limit the image size (0 = no limits)")
+parser.add_argument('--canvas-width', default=-1, type=int, help="Limit the canvas width (cm) (unspecified = scales to fit)")
+parser.add_argument('--canvas-height', default=-1, type=int, help="Limit the canvas height (cm) (unspecified = scales fully)")
 parser.add_argument('img_path', nargs='?', default="images/lake.jpg")
 
 args = parser.parse_args()
@@ -31,6 +39,36 @@ if args.gradient_smoothing_radius == 0:
     print("Automatically chosen gradient smoothing radius: %d" % gradient_smoothing_radius)
 else:
     gradient_smoothing_radius = args.gradient_smoothing_radius
+
+
+# determine what the max size of the image is relative to real dimensions
+if args.canvas_height > MAX_HEIGHT_CM or (args.canvas_height < MIN_HEIGHT_CM  and args.canvas_height != -1) or args.canvas_width > MAX_WIDTH_CM or (args.canvas_width < MIN_WIDTH_CM and args.canvas_width != -1):
+    print("Invalid canvas dimensions. Resetting to defaults.") #TODO: more descriptive error
+    args.canvas_height = -1
+    args.canvas_width = -1
+
+if args.canvas_height == -1 and args.canvas_width == -1:
+    # height and width are both unspecified
+    if img.shape[0] >= img.shape[1]:
+        # scale height to the full centimetres
+        HEIGHT_CM = 30
+        WIDTH_CM = img.shape[1] / img.shape[0] * HEIGHT_CM
+    else:
+        WIDTH_CM = 30
+        HEIGHT_CM = img.shape[0] / img.shape[1] * WIDTH_CM
+elif args.canvas_height == -1:
+    WIDTH_CM = args.canvas_width
+    HEIGHT_CM = img.shape[0] / img.shape[1] * WIDTH_CM
+elif args.canvas_width == -1:
+    HEIGHT_CM = args.canvas_height
+    WIDTH_CM = img.shape[1] / img.shape[0] * HEIGHT_CM
+else:
+    HEIGHT_CM = args.canvas_height
+    WIDTH_CM = args.canvas_width
+
+print("Your height is %f" % HEIGHT_CM)
+print("Your width is %f" % WIDTH_CM)
+
 
 # convert the image to grayscale to compute the gradient
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -87,8 +125,8 @@ for h in bar(range(0, len(grid), batch_size)):
         length = int(round(stroke_scale + stroke_scale * math.sqrt(gradient.magnitude(y, x))))
 
         # calculate start and end points
-        start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)
-        end_point  = round(length / 2 * math.cos(math.radians(angle) + math.pi) + x), round(length / 2 * math.sin(math.radians(angle) + math.pi) + y)
+        start_point = (length / 2 * math.cos(math.radians(angle)) + x) / img.shape[1] * WIDTH_CM, (length / 2 * math.sin(math.radians(angle)) + y) / img.shape[1] * HEIGHT_CM
+        end_point  = (length / 2 * math.cos(math.radians(angle) + math.pi) + x) / img.shape[1] * WIDTH_CM, (length / 2 * math.sin(math.radians(angle) + math.pi) + y) / img.shape[1] * HEIGHT_CM
 
         # write to output file
         output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
