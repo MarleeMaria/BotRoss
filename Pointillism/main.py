@@ -47,27 +47,36 @@ if args.canvas_height > MAX_HEIGHT_CM or (args.canvas_height < MIN_HEIGHT_CM  an
     args.canvas_height = -1
     args.canvas_width = -1
 
-if args.canvas_height == -1 and args.canvas_width == -1:
+while args.canvas_width == -1 or args.canvas_height == -1:
     # height and width are both unspecified
-    if img.shape[0] >= img.shape[1]:
-        # scale height to the full centimetres
-        HEIGHT_CM = 30
-        WIDTH_CM = img.shape[1] / img.shape[0] * HEIGHT_CM
-    else:
-        WIDTH_CM = 30
-        HEIGHT_CM = img.shape[0] / img.shape[1] * WIDTH_CM
-elif args.canvas_height == -1:
-    WIDTH_CM = args.canvas_width
-    HEIGHT_CM = img.shape[0] / img.shape[1] * WIDTH_CM
-elif args.canvas_width == -1:
-    HEIGHT_CM = args.canvas_height
-    WIDTH_CM = img.shape[1] / img.shape[0] * HEIGHT_CM
-else:
-    HEIGHT_CM = args.canvas_height
-    WIDTH_CM = args.canvas_width
+    if args.canvas_height == -1 and args.canvas_width == -1:
+        if img.shape[0] >= img.shape[1]:
+            args.canvas_height = 30
+        else:
+            args.canvas_width = 30
+    elif args.canvas_height == -1:
+        args.canvas_height = img.shape[0] / img.shape[1] * args.canvas_width
+        if args.canvas_height > MAX_HEIGHT_CM or args.canvas_height < MIN_HEIGHT_CM:
+            print("Invalid canvas dimensions. Resetting to defaults.")
+            if args.canvas_height > MAX_HEIGHT_CM:
+                args.canvas_height = MAX_HEIGHT_CM
+            elif args.canvas_height < MIN_HEIGHT_CM:
+                args.canvas_height = MIN_HEIGHT_CM
+            args.canvas_width = -1
+    elif args.canvas_width == -1:
+        args.canvas_width = img.shape[1] / img.shape[0] * args.canvas_height
+        if args.canvas_width > MAX_WIDTH_CM or args.canvas_width < MIN_WIDTH_CM:
+            print("Invalid canvas dimensions. Resetting to defaults.")
+            if args.canvas_width > MAX_WIDTH_CM:
+                args.canvas_width = MAX_WIDTH_CM
+            elif args.canvas_width < MIN_WIDTH_CM:
+                args.canvas_width = MIN_WIDTH_CM
+            args.canvas_height = -1
+HEIGHT_CM = args.canvas_height
+WIDTH_CM = args.canvas_width
 
-print("Your height is %f" % HEIGHT_CM)
-print("Your width is %f" % WIDTH_CM)
+print("Your height is %f cm" % HEIGHT_CM)
+print("Your width is %f cm" % WIDTH_CM)
 
 
 # convert the image to grayscale to compute the gradient
@@ -125,8 +134,34 @@ for h in bar(range(0, len(grid), batch_size)):
         length = int(round(stroke_scale + stroke_scale * math.sqrt(gradient.magnitude(y, x))))
 
         # calculate start and end points
-        start_point = (length / 2 * math.cos(math.radians(angle)) + x) / img.shape[1] * WIDTH_CM, (length / 2 * math.sin(math.radians(angle)) + y) / img.shape[1] * HEIGHT_CM
-        end_point  = (length / 2 * math.cos(math.radians(angle) + math.pi) + x) / img.shape[1] * WIDTH_CM, (length / 2 * math.sin(math.radians(angle) + math.pi) + y) / img.shape[1] * HEIGHT_CM
+        start_x = (length / 2 * math.cos(math.radians(angle)) + x) / img.shape[1] * WIDTH_CM
+        start_y = (length / 2 * math.sin(math.radians(angle)) + y) / img.shape[1] * HEIGHT_CM
+        end_x  = (length / 2 * math.cos(math.radians(angle) + math.pi) + x) / img.shape[1] * WIDTH_CM
+        end_y = (length / 2 * math.sin(math.radians(angle) + math.pi) + y) / img.shape[1] * HEIGHT_CM
+
+        # guards
+        if start_x < 0:
+            start_x = 0
+        elif start_x > WIDTH_CM:
+            start_x = WIDTH_CM
+        if start_y < 0:
+            start_y = 0
+        elif start_y > HEIGHT_CM:
+            start_y = HEIGHT_CM
+        if end_x < 0:
+            end_x = 0
+        elif end_x > WIDTH_CM:
+            end_x = WIDTH_CM
+        if end_y > HEIGHT_CM:
+            end_y = HEIGHT_CM
+
+        start_x_rounded = round(start_x, 2)
+        start_y_rounded = round(start_y, 2)
+        end_x_rounded = round(end_x, 2)
+        end_y_rounded = round(end_y, 2)
+
+        start_point = start_x_rounded, start_y_rounded
+        end_point = end_x_rounded, end_y_rounded
 
         # write to output file
         output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
