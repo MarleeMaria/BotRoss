@@ -3,7 +3,11 @@ import argparse
 import math
 import progressbar
 import numpy as np
+
+
 from pointillism import *
+from pointillism.gui import StartGUI
+
 
 parser = argparse.ArgumentParser(description='...')
 parser.add_argument('--palette-size', default=20, type=int, help="Number of colors of the base palette")
@@ -14,8 +18,11 @@ parser.add_argument('img_path', nargs='?', default="images/lake.jpg")
 
 args = parser.parse_args()
 
-res_path = args.img_path.rsplit(".", -1)[0] + "_drawing.jpg"
-img = cv2.imread(args.img_path)
+
+gui = StartGUI();
+
+res_path = gui.file.rsplit(".", -1)[0] + "_drawing.jpg"
+img = cv2.imread(gui.file)
 
 if args.limit_image_size > 0:
     img = limit_size(img, args.limit_image_size)
@@ -36,7 +43,7 @@ else:
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 print("Computing color palette...")
-palette = ColorPalette.from_image(img, args.palette_size)
+palette = ColorPalette.from_image(img, args.palette_size, gui.color())
 
 # print("Extending color palette...")
 # palette = palette.extend([(0, 50, 0), (15, 30, 0), (-15, 30, 0)])
