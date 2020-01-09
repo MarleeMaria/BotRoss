@@ -2,42 +2,41 @@ import tkinter
 import _tkinter
 from tkinter import ttk
 from tkinter import filedialog
-
+from PIL import ImageTk, Image
 
 class StartGUI:
     def __init__(self):
 
         # Create the main window
         root = tkinter.Tk()
-        root.title("My GUI")
+        root.title("Customise your painting")
+        welcome = tkinter.Label(root, text="Welcome to Bot Ross the painter bot that changes png and jpeg files to a painting.")
+        welcome.pack()
 
+        # root.minsize(640, 400)
 
-        root.minsize(640, 400)
-
-        root.labelFrame = ttk.LabelFrame(root, text = "Open File")
+        root.labelFrame = ttk.LabelFrame(root, text = "Choose a Photo")
         root.labelFrame.pack()
 
         def fileDialog():
             root.filename = filedialog.askopenfilename(initialdir =  "/", title = "Select A File", filetype =
-            (("jpeg files","*.jpg"),("all files","*.*")) )
+            (("jpeg files","*.jpg"),("png files","*.png"),("jpeg files","*.jpeg")) )
             root.label = ttk.Label(root.labelFrame, text = "")
             root.label.pack()
             root.label.configure(text = root.filename)
+
             global filePath
             self.file =  root.filename
 
-
-
+            img = Image.open(root.filename)
+            img = img.resize((250, 250), Image.ANTIALIAS)
+            img = ImageTk.PhotoImage(img)
+            panel = tkinter.Label(root, image=img)
+            panel.image = img
+            panel.pack()
 
         root.button = ttk.Button(root.labelFrame, text = "Browse A File",command = fileDialog)
         root.button.pack()
-
-
-
-
-
-
-
 
         # Create label
         label = tkinter.Label(root, text="Pick Your Pallette")
@@ -72,13 +71,10 @@ class StartGUI:
 
         radiobutton_1.pack(padx=5)
         radiobutton_2.pack(padx=5)
-        # scale.pack(padx=5, pady=5)
         button_submit.pack()
 
         # Run forever or until submit!
         root.mainloop()
-
-
 
         if selection == 2:
             print( "Colored.")
@@ -98,10 +94,8 @@ class StartGUI:
                 colorNum = top_scale.get()
                 root.quit()
 
-
             # top_button = tkinter.Button(level2, text="OK")
             top_submit = tkinter.Button(level2, text="Confirm", command=confirm)
-
 
             top_label.pack()
             top_scale.pack()
@@ -115,9 +109,6 @@ class StartGUI:
             self.colors = [[255,255,255], [0,0,0]]
             print(self.colors)
 
-        # print(colorNum)
-
-        # root.quit()
 
         try: confirm
         except NameError: confirm = None
@@ -136,33 +127,16 @@ class StartGUI:
                 tkinter.Scale(level3, orient=tkinter.HORIZONTAL, from_=0, to=20)
 
 
-
-            # def confirm():
-            #     print( "Confim Color amount")
-            #     top_scale.get()
-            #     global colorNum
-            #     colorNum = top_scale.get()
-            #     root.quit()
-            #
-            #
-            # # top_button = tkinter.Button(level2, text="OK")
-            # top_submit = tkinter.Button(level2, text="Confirm", command=confirm)
-
-
             top_label.pack()
             top_scale.pack()
             top_submit.pack()
-
-            level2.mainloop()
+            level3.mainloop()
 
     def color(self):
         return self.colors
 
-
     def file(self):
         return self.file
-
-
 
 
 
