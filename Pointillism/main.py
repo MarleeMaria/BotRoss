@@ -6,10 +6,10 @@ import numpy as np
 from pointillism import *
 
 # GLOBAL PARAMETERS
-MIN_HEIGHT_CM = 5
-MIN_WIDTH_CM = 5
-MAX_HEIGHT_CM = 30
-MAX_WIDTH_CM = 30
+MIN_HEIGHT_CM = 10
+MIN_WIDTH_CM = 10
+MAX_HEIGHT_CM = 25
+MAX_WIDTH_CM = 25
 
 parser = argparse.ArgumentParser(description='...')
 parser.add_argument('--palette-size', default=20, type=int, help="Number of colors of the base palette")
@@ -155,10 +155,10 @@ for h in bar(range(0, len(grid), batch_size)):
         if end_y > HEIGHT_CM:
             end_y = HEIGHT_CM
 
-        start_x_rounded = round(start_x, 2)
-        start_y_rounded = round(start_y, 2)
-        end_x_rounded = round(end_x, 2)
-        end_y_rounded = round(end_y, 2)
+        start_x_rounded = round(start_x, 1)
+        start_y_rounded = round(start_y, 1)
+        end_x_rounded = round(end_x, 1)
+        end_y_rounded = round(end_y, 1)
 
         start_point = start_x_rounded, start_y_rounded
         end_point = end_x_rounded, end_y_rounded
