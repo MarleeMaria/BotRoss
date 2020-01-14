@@ -22,9 +22,6 @@ class StartGUI:
         def fileDialog():
             root.filename = filedialog.askopenfilename(initialdir =  "/", title = "Select An Image", filetype =
             (("jpeg files","*.jpg"),("png files","*.png"),("jpeg files","*.jpeg")) )
-            root.label = ttk.Label(root.labelFrame, text = "")
-            root.label.pack()
-            root.label.configure(text = root.filename)
 
             global filePath
             self.file =  root.filename
@@ -32,15 +29,33 @@ class StartGUI:
             img = Image.open(root.filename)
             img = img.resize((250, 250), Image.ANTIALIAS)
             img = ImageTk.PhotoImage(img)
-            panel = tkinter.Label(root, image=img)
-            panel.image = img
-            panel.pack()
+            root.panel = ttk.Label(root.labelFrame, image=img)
+            root.panel.image = img
+            root.panel.pack()
+
+            root.label = ttk.Label(root.labelFrame, text = "")
+            root.label.pack()
+            root.label.configure(text = root.filename)
+
+
+
+
 
         root.button = ttk.Button(root.labelFrame, text = "Browse A File",command = fileDialog)
         root.button.pack()
 
         # Create label
+        canvas_size = tkinter.Label(root, text="Specify Canvas Size")
+        canvas_length = tkinter.Spinbox(root, from_=10, to=25)
+        canvas_width = tkinter.Spinbox(root, from_=10, to=25)
+        canvas_size.pack()
+        canvas_length.pack()
+        canvas_width.pack()
+
+
+        # Create label
         label = tkinter.Label(root, text="Pick Your Pallette")
+
 
         # Lay out label
         label.pack()
@@ -63,6 +78,7 @@ class StartGUI:
             radio_option.get()
             global selection
             selection = radio_option.get()
+            button_submit.config(state="disabled")
 
 
             try: selection
@@ -76,14 +92,14 @@ class StartGUI:
                 # Create some widgets to put in the level2 widget (window)
                 top_label = tkinter.Label(root, text="How large is your palette it can be up to 20 colors")
 
-                top_scale = tkinter.Scale(root, orient=tkinter.HORIZONTAL, from_=1, to=20)
+                top_scale = tkinter.Spinbox(root, from_=1, to=10)
 
 
                 def confirm():
                     print( "Confim Color amount")
-                    top_scale.get()
+                    # top_scale.get()
                     global colorNum
-                    colorNum = top_scale.get()
+                    colorNum = int(top_scale.get())
                     self.colors = []
                     index = 0
                     # e = tkinter.Label(root, text="test")
@@ -94,11 +110,11 @@ class StartGUI:
                       # self.colors.append([255, 255, 255])
                       print(self.colors)
 
-
-                      # buttonColor = tkinter.Button(root, text="Pick Color", command= call_me(index))
-                      buttonColor = tkinter.Button(root, text="Pick Color", command= call_me)
-                      buttonColor.pack(side=LEFT)
                       index += 1
+                      button_text = "Well " + str(index)
+                      # buttonColor = tkinter.Button(root, text="Pick Color", command= call_me(index))
+                      buttonColor = tkinter.Button(root, text=button_text, command= call_me)
+                      buttonColor.pack(side=LEFT)
 
 
                 def call_me():
@@ -121,6 +137,7 @@ class StartGUI:
                 top_submit.pack()
 
             elif selection == 1:
+                root.quit()
                 print( "Black & White.")
                 self.colors = [[255,255,255], [0,0,0]]
                 print(self.colors)
@@ -190,7 +207,7 @@ class StartGUI:
         #     print( "Black & White.")
         #     self.colors = [[255,255,255], [0,0,0]]
         #     print(self.colors)
-        #
+
         print(self.colors)
         try: confirm
         except NameError: confirm = None
@@ -199,19 +216,7 @@ class StartGUI:
         else:
             print( "Pick colors.")
 
-            # level3 = tkinter.Tk()
-            # level3.title("Browse colors")
-            # scale_option = tkinter.IntVar()
-            #
-            # # Create some widgets to put in the level2 widget (window)
-            # top_label = tkinter.Label(level3, text="TESTLEVEL")
-            # for x in range(colorNum):
-            #     tkinter.Scale(level3, orient=tkinter.HORIZONTAL, from_=0, to=20)
-            #
-            # top_label.pack()
-            # top_scale.pack()
-            # top_submit.pack()
-            # level3.mainloop()
+
 
     def color(self):
         return self.colors

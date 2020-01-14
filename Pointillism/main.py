@@ -24,6 +24,9 @@ gui = StartGUI();
 res_path = gui.file.rsplit(".", -1)[0] + "_drawing.jpg"
 img = cv2.imread(gui.file)
 
+
+
+
 if args.limit_image_size > 0:
     img = limit_size(img, args.limit_image_size)
 
