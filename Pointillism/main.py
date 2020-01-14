@@ -10,6 +10,7 @@ MIN_HEIGHT_CM = 10
 MIN_WIDTH_CM = 10
 MAX_HEIGHT_CM = 25
 MAX_WIDTH_CM = 25
+PIXELS_PER_CM = 50 # used in preview, do not set over 100 due to high processing time
 
 parser = argparse.ArgumentParser(description='...')
 parser.add_argument('--palette-size', default=20, type=int, help="Number of colors of the base palette")
@@ -104,7 +105,7 @@ print("Drawing image...")
 #res = cv2.medianBlur(img, 11)
 
 #create black blank image
-blank_image = np.zeros((img.shape[0], img.shape[1],3), np.uint8)
+blank_image = np.zeros((round(HEIGHT_CM * PIXELS_PER_CM), round(WIDTH_CM * PIXELS_PER_CM), 3), np.uint8)
 res = cv2.medianBlur(blank_image, 11)
 #fill blank image with white
 res.fill(255)
@@ -116,6 +117,7 @@ batch_size = 10000
 
 output_file = open("output.txt","w+")
 bar = progressbar.ProgressBar()
+
 for h in bar(range(0, len(grid), batch_size)):
 
     # get the pixel colors at each point of the grid
@@ -135,9 +137,9 @@ for h in bar(range(0, len(grid), batch_size)):
 
         # calculate start and end points
         start_x = (length / 2 * math.cos(math.radians(angle)) + x) / img.shape[1] * WIDTH_CM
-        start_y = (length / 2 * math.sin(math.radians(angle)) + y) / img.shape[1] * HEIGHT_CM
+        start_y = (length / 2 * math.sin(math.radians(angle)) + y) / img.shape[0] * HEIGHT_CM
         end_x  = (length / 2 * math.cos(math.radians(angle) + math.pi) + x) / img.shape[1] * WIDTH_CM
-        end_y = (length / 2 * math.sin(math.radians(angle) + math.pi) + y) / img.shape[1] * HEIGHT_CM
+        end_y = (length / 2 * math.sin(math.radians(angle) + math.pi) + y) / img.shape[0] * HEIGHT_CM
 
         # guards
         if start_x < 0:
@@ -155,38 +157,32 @@ for h in bar(range(0, len(grid), batch_size)):
         if end_y > HEIGHT_CM:
             end_y = HEIGHT_CM
 
+        # Round to nearest millimetre for output file purposes
         start_x_rounded = round(start_x, 1)
         start_y_rounded = round(start_y, 1)
         end_x_rounded = round(end_x, 1)
         end_y_rounded = round(end_y, 1)
 
-        start_point = start_x_rounded, start_y_rounded
-        end_point = end_x_rounded, end_y_rounded
-
         # write to output file
-        output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
+        output_file.write("{}, {}, {}\n".format(str((start_x_rounded, start_y_rounded)), str((end_x_rounded, end_y_rounded)), str(color)))
+
+        # calculate points for drawing preview
+        start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
+        end_point = round(end_x * PIXELS_PER_CM), round(end_y * PIXELS_PER_CM)
+
         # draw the brush stroke
-        #cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
-        #append to text file...
+        # cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
 
-        #these are the center x,y's for the start/end of the rectangle
-        start_x = length / 2 * math.cos(math.radians(angle)) + x
-        start_y = length / 2 * math.sin(math.radians(angle)) + y
-        end_x = length / 2 * math.cos(math.radians(angle) + math.pi) + x
-        end_y = length / 2 * math.sin(math.radians(angle) + math.pi) + y
+        # hheight = (start_x - end_x)/2
+        # hwidth = (start_y - end_y)/2
 
-        hheight = (start_x - end_x)/2
-        hwidth = (start_y - end_y)/2
+        # #corner points for rect.
+        # tl_xy = (round(start_x+hheight), round(start_y+hwidth))
+        # br_xy = (round(end_x-hheight),round(end_y-hwidth))
 
-        #corner points for rect.
-        tl_xy = (round(start_x+hheight), round(start_y+hwidth))
-        br_xy = (round(end_x-hheight),round(end_y-hwidth))
-
-        #b_code.write("%s, %s %s\n" % (tl_xy,br_xy,color))
-        #output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
-        #change into a rect call
-        cv2.rectangle(res, (tl_xy), (br_xy), color, -1)
-        #cv2.rectangle(res, (start_point), (end_point), color, -1)
+        # #change into a rect call
+        # cv2.rectangle(res, (tl_xy), (br_xy), color, -1)
+        cv2.rectangle(res, (start_point), (end_point), color, -1)
 
 #b_code.close()
 cv2.imshow("res", limit_size(res, 1080))
