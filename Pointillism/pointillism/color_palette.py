@@ -12,20 +12,24 @@ class ColorPalette:
         print(colors)
         self.base_len = base_len if base_len > 0 else len(colors)
 
+
     @staticmethod
     def from_image(img, n, max_img_size=200, n_init=10):
         # scale down the image to speedup kmeans
         img = limit_size(img, max_img_size)
-
+        global colorlist
         clt = KMeans(n_clusters=n, n_jobs=1, n_init=n_init)
         clt.fit(img.reshape(-1, 3))
         # print(clt)
         # black and white
-        clt.cluster_centers_ = [[225, 225, 225], [0, 0, 0]]
+        #clt.cluster_centers_ = [[255, 255, 255], [0, 0, 0]]
         # any colors we have!
-        # clt.cluster_centers_ = [[255,255,255], [0,255,0], [255,0,0], [0,0,255], [255, 51, 153] , [255, 255, 0], [255,0,255], [0, 255, 255]]
-
-
+        clt.cluster_centers_ = [[255, 255, 255], [0, 0, 0],[0,255,0], [255,0,0], [0,0,255], [255, 51, 153] , [255, 255, 0], [255,0,255], [0, 255, 255]]
+        #Added algorithm to sort the colours after reciving them
+        clt.cluster_centers_.sort(reverse=True)
+            #from Lightest to Darkest
+        colorlist = clt.cluster_centers_
+        #print(colorlist)
         return ColorPalette(clt.cluster_centers_)
 
     def extend(self, extensions):
@@ -54,3 +58,6 @@ class ColorPalette:
 
     def __getitem__(self, item):
         return self.colors[item]
+
+    def colorl(self):
+        return colorlist
