@@ -14,7 +14,7 @@ class ColorPalette:
 
 
     @staticmethod
-    def from_image(img, n, max_img_size=200, n_init=10):
+    def from_image(img, n, sentColors, max_img_size=200, n_init=10):
         # scale down the image to speedup kmeans
         img = limit_size(img, max_img_size)
         global colorlist
@@ -24,7 +24,8 @@ class ColorPalette:
         # black and white
         #clt.cluster_centers_ = [[255, 255, 255], [0, 0, 0]]
         # any colors we have!
-        clt.cluster_centers_ = [[255, 255, 255], [0, 0, 0],[0,255,0], [255,0,0], [0,0,255], [255, 51, 153] , [255, 255, 0], [255,0,255], [0, 255, 255]]
+        #clt.cluster_centers_ = [[255, 255, 255], [0, 0, 0],[0,255,0], [255,0,0], [0,0,255], [255, 51, 153] , [255, 255, 0], [255,0,255], [0, 255, 255]]
+        clt.cluster_centers_ = sentColors
         #Added algorithm to sort the colours after reciving them
         clt.cluster_centers_.sort(reverse=True)
             #from Lightest to Darkest

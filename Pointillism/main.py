@@ -4,6 +4,7 @@ import math
 import progressbar
 import numpy as np
 from pointillism import *
+from pointillism.gui import StartGUI
 
 # GLOBAL PARAMETERS
 MIN_HEIGHT_CM = 10
@@ -23,8 +24,13 @@ parser.add_argument('img_path', nargs='?', default="images/lake.jpg")
 
 args = parser.parse_args()
 
-res_path = args.img_path.rsplit(".", -1)[0] + "_drawing.jpg"
-img = cv2.imread(args.img_path)
+gui = StartGUI();
+
+res_path = gui.file.rsplit(".", -1)[0] + "_drawing.jpg"
+img = cv2.imread(gui.file)
+
+# res_path = args.img_path.rsplit(".", -1)[0] + "_drawing.jpg"
+# img = cv2.imread(args.img_path)
 
 if args.limit_image_size > 0:
     img = limit_size(img, args.limit_image_size)
@@ -84,7 +90,7 @@ print("Your width is %f cm" % WIDTH_CM)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 print("Computing color palette...")
-palette = ColorPalette.from_image(img, args.palette_size)
+palette = ColorPalette.from_image(img, args.palette_size, gui.color())
 
 #add back in the
 # print("Extending color palette...")
@@ -228,7 +234,7 @@ for col in range(0, len(printWList)):
             #else draw and write to output
         else:
             cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
-            output_file.write("({}, {}), ({}, {}), {}, {}\n".format(str(printWList[col][row][7]), str(printWList[col][row][8]), str(printWList[col][row][9]), str(printWList[col][row][10]), str(printWList[col][row][11]), str(printWList[col][row][6])))
+            output_file.write("({}, {}), ({}, {}), {}\n".format(str(printWList[col][row][7]), str(printWList[col][row][8]), str(printWList[col][row][9]), str(printWList[col][row][10]), str(printWList[col][row][11])))
 
 
 cv2.imshow("res", limit_size(res, 1080))
