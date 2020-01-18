@@ -227,6 +227,8 @@ for col in range(0, len(printWList)):
         #printWList[col][row][6] == color
         #printWList[col][row][11] == color well index
 
+        #Sorry just checking if my git now works
+
         #Loop that will check for White
             #if white only Draw (if colour == 255,255,255)
         if printWList[col][row][6] == [255, 255, 255]:
