@@ -182,6 +182,9 @@ for h in bar(range(0, len(grid), batch_size)):
         end_x_rounded = round(end_x, 1)
         end_y_rounded = round(end_y, 1)
 
+        # write to output file
+        output_file.write("{},{},{},{},{}\n".format(start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, str(color)))
+
         # calculate points for drawing preview
         start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
         end_point = round(end_x * PIXELS_PER_CM), round(end_y * PIXELS_PER_CM)
