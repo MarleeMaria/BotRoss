@@ -4,6 +4,7 @@ import math
 import progressbar
 import numpy as np
 from pointillism import *
+from pointillism.gui import StartGUI
 
 # GLOBAL PARAMETERS
 MIN_HEIGHT_CM = 10
@@ -23,8 +24,13 @@ parser.add_argument('img_path', nargs='?', default="images/lake.jpg")
 
 args = parser.parse_args()
 
-res_path = args.img_path.rsplit(".", -1)[0] + "_drawing.jpg"
-img = cv2.imread(args.img_path)
+gui = StartGUI();
+
+res_path = gui.file.rsplit(".", -1)[0] + "_drawing.jpg"
+img = cv2.imread(gui.file)
+
+# res_path = args.img_path.rsplit(".", -1)[0] + "_drawing.jpg"
+# img = cv2.imread(args.img_path)
 
 if args.limit_image_size > 0:
     img = limit_size(img, args.limit_image_size)
@@ -84,15 +90,16 @@ print("Your width is %f cm" % WIDTH_CM)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 print("Computing color palette...")
-palette = ColorPalette.from_image(img, args.palette_size)
+palette = ColorPalette.from_image(img, args.palette_size, gui.color())
 
+#add back in the
 # print("Extending color palette...")
 # palette = palette.extend([(0, 50, 0), (15, 30, 0), (-15, 30, 0)])
 
 # display the color palette
 #____Commented out so i dont have to see it each time____
-# cv2.imshow("palette", palette.to_image())
-# cv2.waitKey(200)
+cv2.imshow("palette", palette.to_image())
+cv2.waitKey(200)
 
 print("Computing gradient...")
 gradient = VectorField.from_gradient(gray)
@@ -105,19 +112,27 @@ print("Drawing image...")
 #res = cv2.medianBlur(img, 11)
 
 #create black blank image
-blank_image = np.zeros((round(HEIGHT_CM * PIXELS_PER_CM), round(WIDTH_CM * PIXELS_PER_CM), 3), np.uint8)
+blank_image = np.zeros((img.shape[0], img.shape[1],3), np.uint8)
 res = cv2.medianBlur(blank_image, 11)
 #fill blank image with white
 res.fill(255)
 
 # define a randomized grid of locations for the brush strokes
-#LOOOK HERE FUCK WITH THE SCALE
-grid = randomized_grid(img.shape[0], img.shape[1], scale=10)
+#LOOOK HERE to FUCK WITH THE SCALE
+grid = randomized_grid(img.shape[0], img.shape[1], scale=15)
 batch_size = 10000
 
 output_file = open("output.txt","w+")
 bar = progressbar.ProgressBar()
+#Need to figure out how to make this more dynamic
 
+#List that holds each strok info based on their colour
+printWList = []
+colorList = palette.colorl()
+for c in range(len(colorList)):
+    printWList.append([])
+
+#print(colorList)
 for h in bar(range(0, len(grid), batch_size)):
 
     # get the pixel colors at each point of the grid
@@ -134,6 +149,10 @@ for h in bar(range(0, len(grid), batch_size)):
         #print(color)
         angle = math.degrees(gradient.direction(y, x)) + 90
         length = int(round(stroke_scale + stroke_scale * math.sqrt(gradient.magnitude(y, x))))
+
+        # calculate start and end points
+        start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)
+        end_point  = round(length / 2 * math.cos(math.radians(angle) + math.pi) + x), round(length / 2 * math.sin(math.radians(angle) + math.pi) + y)
 
         # calculate start and end points
         start_x = (length / 2 * math.cos(math.radians(angle)) + x) / img.shape[1] * WIDTH_CM
@@ -170,21 +189,59 @@ for h in bar(range(0, len(grid), batch_size)):
         start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
         end_point = round(end_x * PIXELS_PER_CM), round(end_y * PIXELS_PER_CM)
 
-        # draw the brush stroke
-        # cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
 
-        # hheight = (start_x - end_x)/2
-        # hwidth = (start_y - end_y)/2
+        #ORGINAL CODE
+        #cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
+        #append to text file...
+        # write to output file
+        #output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
 
-        # #corner points for rect.
-        # tl_xy = (round(start_x+hheight), round(start_y+hwidth))
-        # br_xy = (round(end_x-hheight),round(end_y-hwidth))
+        #these are the center x,y's for the start/end of the rectangle
+        start_x = length / 2 * math.cos(math.radians(angle)) + x
+        start_y = length / 2 * math.sin(math.radians(angle)) + y
+        end_x = length / 2 * math.cos(math.radians(angle) + math.pi) + x
+        end_y = length / 2 * math.sin(math.radians(angle) + math.pi) + y
 
-        # #change into a rect call
-        # cv2.rectangle(res, (tl_xy), (br_xy), color, -1)
-        cv2.rectangle(res, (start_point), (end_point), color, -1)
+        hheight = (start_x - end_x)/2
+        hwidth = (start_y - end_y)/2
+
+        #corner points for rect.
+        tl_xy = (round(start_x+hheight), round(start_y+hwidth))
+        br_xy = (round(end_x-hheight),round(end_y-hwidth))
+
+
+        #MJ CODE: Get the seprate colours to print one by one
+        #Now more dynamic to take in other colours
+        for i in range(len(colorList)):
+            if color == colorList[i]:
+            #if (color == colorList[i]).all():
+                printWList[i].append([res, x, y, length, stroke_scale, angle, color, start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, i])
+
+        #change into a rect call
+        #cv2.rectangle(res, (tl_xy), (br_xy), color, -1)
+        #cv2.rectangle(res, (start_point), (end_point), color, -1)
 
 #b_code.close()
+#Draws each stroke for White and then Black, also added to output file the strokes
+#Comment out the White strokes to see final black on white painting
+#print(printWList)
+for col in range(0, len(printWList)):
+    for row in range(0, len(printWList[col])):
+        #printWList[col][row][6] == color
+        #printWList[col][row][11] == color well index
+
+        #Sorry just checking if my git now works
+
+        #Loop that will check for White
+            #if white only Draw (if colour == 255,255,255)
+        if printWList[col][row][6] == [255, 255, 255]:
+            cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
+            #else draw and write to output
+        else:
+            cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
+            output_file.write("({}, {}), ({}, {}), {}\n".format(str(printWList[col][row][7]), str(printWList[col][row][8]), str(printWList[col][row][9]), str(printWList[col][row][10]), str(printWList[col][row][11])))
+
+
 cv2.imshow("res", limit_size(res, 1080))
 cv2.imwrite(res_path, res)
 cv2.waitKey(0)
