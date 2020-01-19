@@ -18,32 +18,34 @@ PIXELS_PER_CM = 50 # used in preview, do not set over 100 due to high processing
 
 parser = argparse.ArgumentParser(description='...')
 parser.add_argument('--palette-size', default=20, type=int, help="Number of colors of the base palette")
-parser.add_argument('--stroke-scale', default=0, type=int, help="Scale of the brush strokes (0 = automatic)")
+# parser.add_argument('--stroke-scale', default=0, type=int, help="Scale of the brush strokes (0 = automatic)")
 parser.add_argument('--gradient-smoothing-radius', default=0, type=int, help="Radius of the smooth filter applied to the gradient (0 = automatic)")
 parser.add_argument('--limit-image-size', default=0, type=int, help="Limit the image size (0 = no limits)")
-parser.add_argument('--canvas-width', default=-1, type=int, help="Limit the canvas width (cm) (unspecified = scales to fit)")
-parser.add_argument('--canvas-height', default=-1, type=int, help="Limit the canvas height (cm) (unspecified = scales fully)")
-parser.add_argument('img_path', nargs='?', default="images/lake.jpg")
+# parser.add_argument('--canvas-width', default=-1, type=int, help="Limit the canvas width (cm) (unspecified = scales to fit)")
+# parser.add_argument('--canvas-height', default=-1, type=int, help="Limit the canvas height (cm) (unspecified = scales fully)")
+# parser.add_argument('img_path', nargs='?', default="images/lake.jpg")
 
 args = parser.parse_args()
 
 
 gui = StartGUI();
-
+gui.run()
 res_path = gui.file.rsplit(".", -1)[0] + "_drawing.jpg"
 img = cv2.imread(gui.file)
 
 
 
+print(gui.width)
+print(gui.height)
 
 if args.limit_image_size > 0:
     img = limit_size(img, args.limit_image_size)
 
-if args.stroke_scale == 0:
+if gui.brush == 0:
     stroke_scale = int(math.ceil(max(img.shape) / 1000))
     print("Automatically chosen stroke scale: %d" % stroke_scale)
 else:
-    stroke_scale = args.stroke_scale
+    stroke_scale = gui.brush
 
 if args.gradient_smoothing_radius == 0:
     gradient_smoothing_radius = int(round(max(img.shape) / 50))
@@ -53,38 +55,39 @@ else:
 
 
 # determine what the max size of the image is relative to real dimensions
-if args.canvas_height > MAX_HEIGHT_CM or (args.canvas_height < MIN_HEIGHT_CM  and args.canvas_height != -1) or args.canvas_width > MAX_WIDTH_CM or (args.canvas_width < MIN_WIDTH_CM and args.canvas_width != -1):
+if gui.height > MAX_HEIGHT_CM or (gui.height < MIN_HEIGHT_CM  and gui.height != -1) or gui.width > MAX_WIDTH_CM or (gui.width < MIN_WIDTH_CM and gui.width != -1):
     print("Invalid canvas dimensions. Resetting to defaults.") #TODO: more descriptive error
-    args.canvas_height = -1
-    args.canvas_width = -1
+    gui.height = -1
+    gui.width = -1
 
-while args.canvas_width == -1 or args.canvas_height == -1:
+while gui.width == -1 or gui.height == -1:
     # height and width are both unspecified
-    if args.canvas_height == -1 and args.canvas_width == -1:
+    if gui.height == -1 and gui.width == -1:
         if img.shape[0] >= img.shape[1]:
-            args.canvas_height = 30
+            gui.height = 30
         else:
-            args.canvas_width = 30
-    elif args.canvas_height == -1:
-        args.canvas_height = img.shape[0] / img.shape[1] * args.canvas_width
-        if args.canvas_height > MAX_HEIGHT_CM or args.canvas_height < MIN_HEIGHT_CM:
+            gui.width = 30
+    elif gui.height == -1:
+        gui.height = img.shape[0] / img.shape[1] * gui.width
+        if gui.height > MAX_HEIGHT_CM or gui.height < MIN_HEIGHT_CM:
             print("Invalid canvas dimensions. Resetting to defaults.")
-            if args.canvas_height > MAX_HEIGHT_CM:
-                args.canvas_height = MAX_HEIGHT_CM
-            elif args.canvas_height < MIN_HEIGHT_CM:
-                args.canvas_height = MIN_HEIGHT_CM
-            args.canvas_width = -1
-    elif args.canvas_width == -1:
-        args.canvas_width = img.shape[1] / img.shape[0] * args.canvas_height
-        if args.canvas_width > MAX_WIDTH_CM or args.canvas_width < MIN_WIDTH_CM:
+            if gui.height > MAX_HEIGHT_CM:
+                gui.height = MAX_HEIGHT_CM
+            elif gui.height < MIN_HEIGHT_CM:
+                gui.height = MIN_HEIGHT_CM
+            gui.width = -1
+    elif gui.width == -1:
+        gui.width = img.shape[1] / img.shape[0] * gui.height
+        if gui.width > MAX_WIDTH_CM or gui.width < MIN_WIDTH_CM:
             print("Invalid canvas dimensions. Resetting to defaults.")
-            if args.canvas_width > MAX_WIDTH_CM:
-                args.canvas_width = MAX_WIDTH_CM
-            elif args.canvas_width < MIN_WIDTH_CM:
-                args.canvas_width = MIN_WIDTH_CM
-            args.canvas_height = -1
-HEIGHT_CM = args.canvas_height
-WIDTH_CM = args.canvas_width
+            if gui.width > MAX_WIDTH_CM:
+                gui.width = MAX_WIDTH_CM
+            elif gui.width < MIN_WIDTH_CM:
+                gui.width = MIN_WIDTH_CM
+            gui.height = -1
+
+HEIGHT_CM = gui.height
+WIDTH_CM = gui.width
 
 print("Your height is %f cm" % HEIGHT_CM)
 print("Your width is %f cm" % WIDTH_CM)
