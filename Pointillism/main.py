@@ -188,6 +188,10 @@ for h in bar(range(0, len(grid), batch_size)):
         end_x_rounded = round(end_x, 1)
         end_y_rounded = round(end_y, 1)
 
+        # Translate to make botton origin for output file purposes
+        start_y_rounded = start_y_rounded + (MAX_HEIGHT_CM - HEIGHT_CM)
+        end_y_rounded = end_y_rounded + (MAX_HEIGHT_CM - HEIGHT_CM)
+
         # write to output file
         output_file.write("{},{},{},{},{}\n".format(start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, str(color)))
 
