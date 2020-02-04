@@ -215,6 +215,9 @@ for h in bar(range(0, len(grid), batch_size)):
         tl_xy = (round(start_x+hheight), round(start_y+hwidth))
         br_xy = (round(end_x-hheight),round(end_y-hwidth))
 
+        x = round(x / img.shape[1] * WIDTH_CM * PIXELS_PER_CM)
+        y = round(y / img.shape[0] * HEIGHT_CM * PIXELS_PER_CM)
+        print((x, y))
 
         #MJ CODE: Get the seprate colours to print one by one
         #Now more dynamic to take in other colours

@@ -27,7 +27,7 @@ class StartGUI:
         root.labelFrame = ttk.LabelFrame(root, text = "Choose a Photo").grid(row=1)
 
         def fileDialog():
-            root.filename = filedialog.askopenfilename(initialdir =  "/", title = "Select An Image", filetype =
+            root.filename = filedialog.askopenfilename(initialdir =  "/", title = "Select An Image", filetypes =
             (("jpeg files","*.jpg"),("png files","*.png"),("jpeg files","*.jpeg")) )
 
             global filePath
