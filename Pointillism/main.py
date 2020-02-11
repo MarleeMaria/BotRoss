@@ -13,7 +13,9 @@ MIN_HEIGHT_CM = 10
 MIN_WIDTH_CM = 10
 MAX_HEIGHT_CM = 25
 MAX_WIDTH_CM = 25
-# MIN_STROKE = 3
+MIN_STROKE = 2
+STROKE_FACTOR = 3
+STROKE_LENGTH = 3
 PIXELS_PER_CM = 50 # used in preview, do not set over 100 due to high processing time
 
 parser = argparse.ArgumentParser(description='...')
@@ -27,13 +29,10 @@ parser.add_argument('--limit-image-size', default=0, type=int, help="Limit the i
 
 args = parser.parse_args()
 
-
 gui = StartGUI();
 gui.run()
 res_path = gui.file.rsplit(".", -1)[0] + "_drawing.jpg"
 img = cv2.imread(gui.file)
-
-
 
 print(gui.width)
 print(gui.height)
@@ -121,17 +120,16 @@ print("Drawing image...")
 #create black blank image
 blank_image = np.zeros((img.shape[0], img.shape[1],3), np.uint8)
 res = cv2.medianBlur(blank_image, 11)
+
 #fill blank image with white
 res.fill(255)
 
 # define a randomized grid of locations for the brush strokes
-#LOOOK HERE to FUCK WITH THE SCALE
 grid = randomized_grid(img.shape[0], img.shape[1], scale=15)
 batch_size = 10000
 
 output_file = open("output.txt","w+")
 bar = progressbar.ProgressBar()
-#Need to figure out how to make this more dynamic
 
 #List that holds each strok info based on their colour
 printWList = []
@@ -157,8 +155,7 @@ for h in bar(range(0, len(grid), batch_size)):
         #prints out RBG values for each strokes
         #print(color)
         angle = math.degrees(gradient.direction(y, x)) + 90
-        # length = int(round(MIN_STROKE + stroke_scale * gradient.magnitude(y, x)))
-        length = int(round(math.sqrt(stroke_scale*gradient.magnitude(y, x))))
+        length = int(round(MIN_STROKE + STROKE_FACTOR * gradient.magnitude(y, x)))
 
         # calculate start and end points
         start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)
@@ -193,46 +190,25 @@ for h in bar(range(0, len(grid), batch_size)):
         end_y_rounded = round(end_y, 1)
 
         # write to output file
-        output_file.write("{},{},{},{},{}\n".format(start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, str(color)))
+        # output_file.write("{},{},{},{},{}\n".format(start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, str(color)))
 
         # calculate points for drawing preview
         start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
         end_point = round(end_x * PIXELS_PER_CM), round(end_y * PIXELS_PER_CM)
 
-
-        #ORGINAL CODE
-        #cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
-        #append to text file...
-        # write to output file
-        #output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
-
-        #these are the center x,y's for the start/end of the rectangle
-        start_x = length / 2 * math.cos(math.radians(angle)) + x
-        start_y = length / 2 * math.sin(math.radians(angle)) + y
-        end_x = length / 2 * math.cos(math.radians(angle) + math.pi) + x
-        end_y = length / 2 * math.sin(math.radians(angle) + math.pi) + y
-
-        hheight = (start_x - end_x)/2
-        hwidth = (start_y - end_y)/2
-
-        #corner points for rect.
-        tl_xy = (round(start_x+hheight), round(start_y+hwidth))
-        br_xy = (round(end_x-hheight),round(end_y-hwidth))
+        # sketch preview
+        cv2.line(res, (start_point), (end_point), color, stroke_scale)
 
         x = round(x / img.shape[1] * WIDTH_CM * PIXELS_PER_CM)
         y = round(y / img.shape[0] * HEIGHT_CM * PIXELS_PER_CM)
-        print((x, y))
 
         #MJ CODE: Get the seprate colours to print one by one
         #Now more dynamic to take in other colours
         for i in range(len(colorList)):
             if color == colorList[i]:
-            #if (color == colorList[i]).all():
                 printWList[i].append([res, x, y, length, stroke_scale, angle, color, start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, i])
 
-        #change into a rect call
-        cv2.line(res, (tl_xy), (br_xy), color, stroke_scale )
-        #cv2.rectangle(res, (start_point), (end_point), color, -1)
+
 
 #b_code.close()
 #Draws each stroke for White and then Black, also added to output file the strokes
