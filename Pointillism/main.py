@@ -13,6 +13,7 @@ MIN_HEIGHT_CM = 10
 MIN_WIDTH_CM = 10
 MAX_HEIGHT_CM = 25
 MAX_WIDTH_CM = 25
+# MIN_STROKE = 3
 PIXELS_PER_CM = 50 # used in preview, do not set over 100 due to high processing time
 
 parser = argparse.ArgumentParser(description='...')
@@ -151,10 +152,13 @@ for h in bar(range(0, len(grid), batch_size)):
     for i, (y, x) in enumerate(grid[h:min(h + batch_size, len(grid))]):
         #Get colour bellow?
         color = color_select(color_probabilities[i], palette)
+        if color == [255, 255, 255]:
+            continue
         #prints out RBG values for each strokes
         #print(color)
         angle = math.degrees(gradient.direction(y, x)) + 90
-        length = int(round(stroke_scale + stroke_scale * math.sqrt(gradient.magnitude(y, x))))
+        # length = int(round(MIN_STROKE + stroke_scale * gradient.magnitude(y, x)))
+        length = int(round(math.sqrt(stroke_scale*gradient.magnitude(y, x))))
 
         # calculate start and end points
         start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)
@@ -227,7 +231,7 @@ for h in bar(range(0, len(grid), batch_size)):
                 printWList[i].append([res, x, y, length, stroke_scale, angle, color, start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, i])
 
         #change into a rect call
-        #cv2.rectangle(res, (tl_xy), (br_xy), color, -1)
+        cv2.line(res, (tl_xy), (br_xy), color, stroke_scale )
         #cv2.rectangle(res, (start_point), (end_point), color, -1)
 
 #b_code.close()
@@ -243,11 +247,12 @@ for col in range(0, len(printWList)):
 
         #Loop that will check for White
             #if white only Draw (if colour == 255,255,255)
-        if printWList[col][row][6] == [255, 255, 255]:
-            cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
+        if sum(printWList[col][row][6]) >= (255+255+255) / 2:
+            pass
+            #cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
             #else draw and write to output
         else:
-            cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
+            # cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
             output_file.write("({}, {}), ({}, {}), {}\n".format(str(printWList[col][row][7]), str(printWList[col][row][8]), str(printWList[col][row][9]), str(printWList[col][row][10]), str(printWList[col][row][11])))
 
 
