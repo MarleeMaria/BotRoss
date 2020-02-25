@@ -34,9 +34,6 @@ gui.run()
 res_path = gui.file.rsplit(".", -1)[0] + "_drawing.jpg"
 img = cv2.imread(gui.file)
 
-print(gui.width)
-print(gui.height)
-
 if args.limit_image_size > 0:
     img = limit_size(img, args.limit_image_size)
 
@@ -103,7 +100,6 @@ palette = ColorPalette.from_image(img, args.palette_size, gui.color())
 # palette = palette.extend([(0, 50, 0), (15, 30, 0), (-15, 30, 0)])
 
 # display the color palette
-#____Commented out so i dont have to see it each time____
 cv2.imshow("palette", palette.to_image())
 cv2.waitKey(200)
 
@@ -111,7 +107,7 @@ print("Computing gradient...")
 gradient = VectorField.from_gradient(gray)
 
 print("Smoothing gradient...")
-gradient.smooth(gradient_smoothing_radius)
+# gradient.smooth(gradient_smoothing_radius)
 
 print("Drawing image...")
 # create a "cartonized" version of the image to use as a base for the painting
@@ -188,9 +184,6 @@ for h in bar(range(0, len(grid), batch_size)):
         start_y_rounded = round(start_y, 1)
         end_x_rounded = round(end_x, 1)
         end_y_rounded = round(end_y, 1)
-
-        # write to output file
-        # output_file.write("{},{},{},{},{}\n".format(start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, str(color)))
 
         # calculate points for drawing preview
         start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
