@@ -191,7 +191,7 @@ class mainRun:
                 end_y_rounded = round(end_y, 1)
 
                 # write to output file
-                output_file.write("{},{},{},{},{}\n".format(start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, str(color)))
+                # output_file.write("{},{},{},{},{}\n".format(start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, str(color)))
 
                 # calculate points for drawing preview
                 start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
@@ -247,7 +247,7 @@ class mainRun:
                     #else draw and write to output
                 else:
                     cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
-                    output_file.write("({}, {}), ({}, {}), {}\n".format(str(printWList[col][row][7]), str(printWList[col][row][8]), str(printWList[col][row][9]), str(printWList[col][row][10]), str(printWList[col][row][11])))
+                    output_file.write("{}, {}, {}, {}, {}\n".format(str(printWList[col][row][7]), str(printWList[col][row][8]), str(printWList[col][row][9]), str(printWList[col][row][10]), str(printWList[col][row][11])))
 
 
         # cv2.imshow("res", limit_size(res, 1080))
