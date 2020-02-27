@@ -46,13 +46,12 @@ root.label.grid(row=4)
 root.label.configure(text = file)
 
 
-root.button = ttk.Button(root.labelFrame, text = "Browse A File",command = fileDialog)
-root.button.grid(row=2)
+root.button = ttk.Button(root.labelFrame, text = "Browse A File",command = fileDialog).grid(row=2)
 
-# Create cavas Size
+# Create cavas Size items
 canvas_size = tkinter.Label(root, text="Specify Canvas Size")
-label_height = tkinter.Label(root, text="Height(cm): ").grid(row=6, sticky=W)
-label_width = tkinter.Label(root,  text="Width(cm): ").grid(row=7, sticky=W)
+label_height = tkinter.Label(root, text="Height(cm): ")
+label_width = tkinter.Label(root,  text="Width(cm): ")
 canvas_height = tkinter.Spinbox(root, from_=10, to=25)
 canvas_width = tkinter.Spinbox(root, from_=10, to=25)
 
@@ -74,56 +73,20 @@ brush_size_3 = tkinter.Radiobutton( root,
                                 variable=brush_size,
                                 value=20)
 
+# Add Items to grid
+label_height.grid(row=6, sticky=W)
+label_width.grid(row=7, sticky=W)
+
 canvas_size.grid(row=5)
 canvas_height.grid(row=6)
 canvas_width.grid(row=7)
 
-brush_label.grid()
-brush_size_1.grid()
-brush_size_2.grid()
-brush_size_3.grid()
-
-# Create label
-label = tkinter.Label(root, text="Pick Your Pallette")
-
-
-# Lay out label
-radio_option = tkinter.IntVar()
-
-radiobutton_1 = tkinter.Radiobutton( root,
-                                text="Black And White",
-                                variable=radio_option,
-                                value=1)
-radiobutton_2 = tkinter.Radiobutton( root,
-                                text="Color",
-                                variable=radio_option,
-                                value=2)
-
-
-def next():
-    label.grid()
-
-
-    radiobutton_1.grid()
-    radiobutton_2.grid()
-    button_submit.grid()
-
-# root.next = ttk.Button(root, text = "Next",command = next).grid()
-
 
 def submit():
-    # label.grid()
-
-
-    # radiobutton_1.grid()
-    # radiobutton_2.grid()
-
-
-    print( "Selection:")
-    radio_option.get()
-    global selection
-    selection = radio_option.get()
-
+    # print( "Selection:")
+    # radio_option.get()
+    # global selection
+    # selection = radio_option.get()
 
     print( "Brush Size:")
     brush_size.get()
@@ -144,20 +107,18 @@ def submit():
     runCode.run(brush, width, height, colors, file)
 
 
-    height_value = int(canvas_height.get())
-    width_value = int(canvas_width.get())
 
-    height = height_value
-    width = width_value
-
-    root.panel.grid_remove()
+    # root.panel.grid_remove()
     fileDrawing = file.strip('.jpg')
     img =  Image.open(fileDrawing+'_drawing.jpg')
     img = img.resize((width*25, height*25), Image.ANTIALIAS)
     img = ImageTk.PhotoImage(img)
-    root.panel = ttk.Label(root.labelFrame, image=img)
-    root.panel.image = img
-    root.panel.grid(row=3)
+    root.panelSample = ttk.Label(root.labelFrame, image=img)
+    root.panelSample.image = img
+    root.panelSample.grid()
+
+
+    button_done.grid()
 
     # try: selection
     # except NameError: selection = None
@@ -220,17 +181,80 @@ def submit():
     #     colors = [[255,255,255], [0,0,0]]
     #     print(colors)
 
+button_submit = ttk.Button(root, text="Paint", command=submit)
 
-button_submit = ttk.Button(root, text="Preview", command=submit).grid()
 
 
-# Run forever or until submit!
+
+def preview():
+    height_value = int(canvas_height.get())
+    width_value = int(canvas_width.get())
+
+    height = height_value
+    width = width_value
+
+    root.panel.grid_remove()
+    img =  Image.open(file)
+    img = img.resize((width*25, height*25), Image.ANTIALIAS)
+    img = ImageTk.PhotoImage(img)
+    root.panel = ttk.Label(root.labelFrame, image=img)
+    root.panel.image = img
+    root.panel.grid(row=3)
+
+# Print The brush Options
+    brush_label.grid()
+    brush_size_1.grid()
+    brush_size_2.grid()
+    brush_size_3.grid()
+    button_submit.grid()
+
+# Declare Preview button
+button_preview = ttk.Button(root, text="Preview", command=preview)
+
+button_preview.grid()
+
+
+# # Create label
+# label = tkinter.Label(root, text="Pick Your Pallette")
+#
+#
+# # Lay out label
+# radio_option = tkinter.IntVar()
+#
+# radiobutton_1 = tkinter.Radiobutton( root,
+#                                 text="Black And White",
+#                                 variable=radio_option,
+#                                 value=1)
+# radiobutton_2 = tkinter.Radiobutton( root,
+#                                 text="Color",
+#                                 variable=radio_option,
+#                                 value=2)
+
+#
+# def next():
+#     label.grid()
+#
+#
+#     radiobutton_1.grid()
+#     radiobutton_2.grid()
+#     button_submit.grid()
+#
+# # root.next = ttk.Button(root, text = "Next",command = next).grid()
+
+def end():
+    root.quit()
+
+button_done = ttk.Button(root, text="Done Editing", command=end)
+
+
+
+# Run forever
 root.mainloop()
 
-print(colors)
-try: confirm
-except NameError: confirm = None
-if confirm is None:
-    print("colorless")
-else:
-    print( "Pick colors.")
+# print(colors)
+# try: confirm
+# except NameError: confirm = None
+# if confirm is None:
+#     print("colorless")
+# else:
+#     print( "Pick colors.")
