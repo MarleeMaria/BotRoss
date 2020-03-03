@@ -246,8 +246,6 @@ def end():
 
 button_done = ttk.Button(root, text="Done Editing", command=end)
 
-
-
 # Run forever
 root.mainloop()
 
