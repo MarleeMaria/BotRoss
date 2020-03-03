@@ -13,6 +13,9 @@ MIN_HEIGHT_CM = 10
 MIN_WIDTH_CM = 10
 MAX_HEIGHT_CM = 25
 MAX_WIDTH_CM = 25
+MIN_STROKE = 2
+STROKE_FACTOR = 3
+STROKE_LENGTH = 3
 PIXELS_PER_CM = 50 # used in preview, do not set over 100 due to high processing time
 
 parser = argparse.ArgumentParser(description='...')
@@ -26,16 +29,10 @@ parser.add_argument('--limit-image-size', default=0, type=int, help="Limit the i
 
 args = parser.parse_args()
 
-
 gui = StartGUI();
 gui.run()
 res_path = gui.file.rsplit(".", -1)[0] + "_drawing.jpg"
 img = cv2.imread(gui.file)
-
-
-
-print(gui.width)
-print(gui.height)
 
 if args.limit_image_size > 0:
     img = limit_size(img, args.limit_image_size)
@@ -103,7 +100,6 @@ palette = ColorPalette.from_image(img, args.palette_size, gui.color())
 # palette = palette.extend([(0, 50, 0), (15, 30, 0), (-15, 30, 0)])
 
 # display the color palette
-#____Commented out so i dont have to see it each time____
 cv2.imshow("palette", palette.to_image())
 cv2.waitKey(200)
 
@@ -111,7 +107,7 @@ print("Computing gradient...")
 gradient = VectorField.from_gradient(gray)
 
 print("Smoothing gradient...")
-gradient.smooth(gradient_smoothing_radius)
+# gradient.smooth(gradient_smoothing_radius)
 
 print("Drawing image...")
 # create a "cartonized" version of the image to use as a base for the painting
@@ -120,17 +116,16 @@ print("Drawing image...")
 #create black blank image
 blank_image = np.zeros((img.shape[0], img.shape[1],3), np.uint8)
 res = cv2.medianBlur(blank_image, 11)
+
 #fill blank image with white
 res.fill(255)
 
 # define a randomized grid of locations for the brush strokes
-#LOOOK HERE to FUCK WITH THE SCALE
 grid = randomized_grid(img.shape[0], img.shape[1], scale=15)
 batch_size = 10000
 
 output_file = open("output.txt","w+")
 bar = progressbar.ProgressBar()
-#Need to figure out how to make this more dynamic
 
 #List that holds each strok info based on their colour
 printWList = []
@@ -151,10 +146,12 @@ for h in bar(range(0, len(grid), batch_size)):
     for i, (y, x) in enumerate(grid[h:min(h + batch_size, len(grid))]):
         #Get colour bellow?
         color = color_select(color_probabilities[i], palette)
+        if color == [255, 255, 255]:
+            continue
         #prints out RBG values for each strokes
         #print(color)
         angle = math.degrees(gradient.direction(y, x)) + 90
-        length = int(round(stroke_scale + stroke_scale * math.sqrt(gradient.magnitude(y, x))))
+        length = int(round(MIN_STROKE + STROKE_FACTOR * gradient.magnitude(y, x)))
 
         # calculate start and end points
         start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)
@@ -188,47 +185,23 @@ for h in bar(range(0, len(grid), batch_size)):
         end_x_rounded = round(end_x, 1)
         end_y_rounded = round(end_y, 1)
 
-        # write to output file
-        output_file.write("{},{},{},{},{}\n".format(start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, str(color)))
-
         # calculate points for drawing preview
         start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
         end_point = round(end_x * PIXELS_PER_CM), round(end_y * PIXELS_PER_CM)
 
-
-        #ORGINAL CODE
-        #cv2.ellipse(res, (x, y), (length, stroke_scale), angle, 0, 360, color, -1, cv2.LINE_AA)
-        #append to text file...
-        # write to output file
-        #output_file.write("{}, {}, {}\n".format(str(start_point), str(end_point), str(color)))
-
-        #these are the center x,y's for the start/end of the rectangle
-        start_x = length / 2 * math.cos(math.radians(angle)) + x
-        start_y = length / 2 * math.sin(math.radians(angle)) + y
-        end_x = length / 2 * math.cos(math.radians(angle) + math.pi) + x
-        end_y = length / 2 * math.sin(math.radians(angle) + math.pi) + y
-
-        hheight = (start_x - end_x)/2
-        hwidth = (start_y - end_y)/2
-
-        #corner points for rect.
-        tl_xy = (round(start_x+hheight), round(start_y+hwidth))
-        br_xy = (round(end_x-hheight),round(end_y-hwidth))
+        # sketch preview
+        cv2.line(res, (start_point), (end_point), color, stroke_scale)
 
         x = round(x / img.shape[1] * WIDTH_CM * PIXELS_PER_CM)
         y = round(y / img.shape[0] * HEIGHT_CM * PIXELS_PER_CM)
-        print((x, y))
 
         #MJ CODE: Get the seprate colours to print one by one
         #Now more dynamic to take in other colours
         for i in range(len(colorList)):
             if color == colorList[i]:
-            #if (color == colorList[i]).all():
                 printWList[i].append([res, x, y, length, stroke_scale, angle, color, start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, i])
 
-        #change into a rect call
-        #cv2.rectangle(res, (tl_xy), (br_xy), color, -1)
-        #cv2.rectangle(res, (start_point), (end_point), color, -1)
+
 
 #b_code.close()
 #Draws each stroke for White and then Black, also added to output file the strokes
@@ -243,11 +216,12 @@ for col in range(0, len(printWList)):
 
         #Loop that will check for White
             #if white only Draw (if colour == 255,255,255)
-        if printWList[col][row][6] == [255, 255, 255]:
-            cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
+        if sum(printWList[col][row][6]) >= (255+255+255) / 2:
+            pass
+            #cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
             #else draw and write to output
         else:
-            cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
+            # cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
             output_file.write("({}, {}), ({}, {}), {}\n".format(str(printWList[col][row][7]), str(printWList[col][row][8]), str(printWList[col][row][9]), str(printWList[col][row][10]), str(printWList[col][row][11])))
 
 

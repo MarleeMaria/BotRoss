@@ -17,7 +17,6 @@ class VectorField:
 
     def get_magnitude_image(self):
         res = np.sqrt(self.fieldx**2 + self.fieldy**2)
-        
         return (res * 255/np.max(res)).astype(np.uint8)
 
     def smooth(self, radius, iterations=1):
