@@ -114,7 +114,7 @@ print("Drawing image...")
 #res = cv2.medianBlur(img, 11)
 
 #create black blank image
-blank_image = np.zeros((img.shape[0], img.shape[1],3), np.uint8)
+blank_image = np.zeros((MAX_HEIGHT_CM * PIXELS_PER_CM, MAX_WIDTH_CM * PIXELS_PER_CM,3), np.uint8)
 res = cv2.medianBlur(blank_image, 11)
 
 #fill blank image with white
