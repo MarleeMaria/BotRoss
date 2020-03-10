@@ -115,10 +115,10 @@ def submit():
     img = ImageTk.PhotoImage(img)
     root.panelSample = ttk.Label(root.labelFrame, image=img)
     root.panelSample.image = img
-    root.panelSample.grid()
+    root.panelSample.grid(row=14)
 
 
-    button_done.grid()
+    button_done.grid(row=15)
 
     # try: selection
     # except NameError: selection = None
@@ -202,16 +202,16 @@ def preview():
     root.panel.grid(row=3)
 
 # Print The brush Options
-    brush_label.grid()
-    brush_size_1.grid()
-    brush_size_2.grid()
-    brush_size_3.grid()
-    button_submit.grid()
+    brush_label.grid(row=9)
+    brush_size_1.grid(row=10)
+    brush_size_2.grid(row=11)
+    brush_size_3.grid(row=12)
+    button_submit.grid(row=13)
 
 # Declare Preview button
 button_preview = ttk.Button(root, text="Preview", command=preview)
 
-button_preview.grid()
+button_preview.grid(row=8)
 
 
 # # Create label
