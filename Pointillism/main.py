@@ -155,36 +155,35 @@ class mainRun:
                 length = int(round(MIN_STROKE + math.sqrt(STROKE_LENGTH* gradient.magnitude(y, x))))
 
                 # calculate start and end points
-                start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)
-                end_point  = round(length / 2 * math.cos(math.radians(angle) + math.pi) + x), round(length / 2 * math.sin(math.radians(angle) + math.pi) + y)
-
-                # calculate start and end points
                 start_x = (length / 2 * math.cos(math.radians(angle)) + x) / img.shape[1] * WIDTH_CM
-                start_y = (length / 2 * math.sin(math.radians(angle)) + y) / img.shape[0] * HEIGHT_CM
+                start_y = (length / 2 * math.sin(math.radians(angle)) + y) / img.shape[0] * HEIGHT_CM + (MAX_HEIGHT_CM - HEIGHT_CM)
                 end_x  = (length / 2 * math.cos(math.radians(angle) + math.pi) + x) / img.shape[1] * WIDTH_CM
-                end_y = (length / 2 * math.sin(math.radians(angle) + math.pi) + y) / img.shape[0] * HEIGHT_CM
+                end_y = (length / 2 * math.sin(math.radians(angle) + math.pi) + y) / img.shape[0] * HEIGHT_CM + (MAX_HEIGHT_CM - HEIGHT_CM)
 
                 # guards
                 if start_x < 0:
                     start_x = 0
                 elif start_x > WIDTH_CM:
                     start_x = WIDTH_CM
-                if start_y < 0:
-                    start_y = 0
-                elif start_y > HEIGHT_CM:
-                    start_y = HEIGHT_CM
+                if start_y < (MAX_HEIGHT_CM - HEIGHT_CM):
+                    start_y = MAX_HEIGHT_CM - HEIGHT_CM
+                elif start_y > MAX_HEIGHT_CM:
+                    start_y = MAX_HEIGHT_CM
                 if end_x < 0:
                     end_x = 0
                 elif end_x > WIDTH_CM:
                     end_x = WIDTH_CM
-                if end_y > HEIGHT_CM:
-                    end_y = HEIGHT_CM
+                if end_y < (MAX_HEIGHT_CM - HEIGHT_CM):
+                    end_y = MAX_HEIGHT_CM - HEIGHT_CM
+                elif end_y > MAX_HEIGHT_CM:
+                    end_y = MAX_HEIGHT_CM
+
 
                 # Round to nearest millimetre for output file purposes
                 start_x_rounded = round(start_x, 1)
-                start_y_rounded = round(start_y, 1)
+                start_y_rounded = round(MAX_HEIGHT_CM - start_y, 1)
                 end_x_rounded = round(end_x, 1)
-                end_y_rounded = round(end_y, 1)
+                end_y_rounded = round(MAX_HEIGHT_CM - end_y, 1)
 
                 # calculate points for drawing preview
                 start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
@@ -192,9 +191,6 @@ class mainRun:
 
                 # sketch preview
                 cv2.line(res, (start_point), (end_point), color, stroke_scale)
-
-                x = round(x / img.shape[1] * WIDTH_CM * PIXELS_PER_CM)
-                y = round(y / img.shape[0] * HEIGHT_CM * PIXELS_PER_CM)
 
                 #MJ CODE: Get the seprate colours to print one by one
                 #Now more dynamic to take in other colours
