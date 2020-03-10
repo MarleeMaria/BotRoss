@@ -122,7 +122,7 @@ class mainRun:
         res.fill(255)
 
         # define a randomized grid of locations for the brush strokes
-        grid = randomized_grid(img.shape[0], img.shape[1], gradient, scale=25)
+        grid = randomized_grid(img.shape[0], img.shape[1], gradient, scale=50)
         batch_size = 10000
 
         output_file = open("output.txt","w+")
