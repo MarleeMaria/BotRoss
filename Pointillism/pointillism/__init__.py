@@ -28,7 +28,7 @@ def color_select(probabilities, palette):
     return palette[i] if i < len(palette) else palette[-1]
 
 
-def randomized_grid(h, w, gradient, scale):
+def randomized_grid(h, w, gradient, scale, edge_only=False):
     assert (scale > 0)
 
     r = scale // 2
@@ -52,9 +52,11 @@ def randomized_grid(h, w, gradient, scale):
 
             # print(gradient.magnitude(y, x))
             # likelihood of appearing based on magnitude
-            if random.uniform(0, 100) < gradient.magnitude(y, x):
+            if edge_only:
+                if random.uniform(0, 100) < gradient.magnitude(y, x):
+                    grid.append((y % h, x % w))
+            else:
                 grid.append((y % h, x % w))
-
     #Figure out what the differences is
     random.shuffle(grid)
     #printGrd(grid)
