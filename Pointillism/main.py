@@ -101,8 +101,8 @@ class mainRun:
         # palette = palette.extend([(0, 50, 0), (15, 30, 0), (-15, 30, 0)])
 
         # display the color palette
-        cv2.imshow("palette", palette.to_image())
-        cv2.waitKey(200)
+        # cv2.imshow("palette", palette.to_image())
+        # cv2.waitKey(200)
 
         print("Computing gradient...")
         gradient = VectorField.from_gradient(gray)
@@ -223,6 +223,6 @@ class mainRun:
                     output_file.write("({}, {}), ({}, {}), {}\n".format(str(printWList[col][row][7]), str(printWList[col][row][8]), str(printWList[col][row][9]), str(printWList[col][row][10]), str(printWList[col][row][11])))
 
         output_file.close()
-        cv2.imshow("res", limit_size(res, 1080))
+        # cv2.imshow("res", limit_size(res, 1080))
         cv2.imwrite(res_path, res)
         cv2.waitKey(0)
