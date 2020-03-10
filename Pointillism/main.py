@@ -13,9 +13,9 @@ MIN_HEIGHT_CM = 10
 MIN_WIDTH_CM = 10
 MAX_HEIGHT_CM = 25
 MAX_WIDTH_CM = 25
-MIN_STROKE = 2
-STROKE_FACTOR = 3
-STROKE_LENGTH = 3
+MIN_STROKE = 1
+STROKE_FACTOR = 0.5
+STROKE_LENGTH = 5
 PIXELS_PER_CM = 50 # used in preview, do not set over 100 due to high processing time
 
 parser = argparse.ArgumentParser(description='...')
@@ -44,7 +44,7 @@ else:
     stroke_scale = gui.brush
 
 if args.gradient_smoothing_radius == 0:
-    gradient_smoothing_radius = int(round(max(img.shape) / 50))
+    gradient_smoothing_radius = int(round(max(img.shape) / 100))
     print("Automatically chosen gradient smoothing radius: %d" % gradient_smoothing_radius)
 else:
     gradient_smoothing_radius = args.gradient_smoothing_radius
@@ -107,7 +107,7 @@ print("Computing gradient...")
 gradient = VectorField.from_gradient(gray)
 
 print("Smoothing gradient...")
-# gradient.smooth(gradient_smoothing_radius)
+gradient.smooth(gradient_smoothing_radius)
 
 print("Drawing image...")
 # create a "cartonized" version of the image to use as a base for the painting
@@ -121,7 +121,7 @@ res = cv2.medianBlur(blank_image, 11)
 res.fill(255)
 
 # define a randomized grid of locations for the brush strokes
-grid = randomized_grid(img.shape[0], img.shape[1], scale=15)
+grid = randomized_grid(img.shape[0], img.shape[1], gradient, scale=15)
 batch_size = 10000
 
 output_file = open("output.txt","w+")
@@ -151,7 +151,7 @@ for h in bar(range(0, len(grid), batch_size)):
         #prints out RBG values for each strokes
         #print(color)
         angle = math.degrees(gradient.direction(y, x)) + 90
-        length = int(round(MIN_STROKE + STROKE_FACTOR * gradient.magnitude(y, x)))
+        length = int(round(MIN_STROKE + math.sqrt(STROKE_LENGTH* gradient.magnitude(y, x))))
 
         # calculate start and end points
         start_point = round(length / 2 * math.cos(math.radians(angle)) + x), round(length / 2 * math.sin(math.radians(angle)) + y)

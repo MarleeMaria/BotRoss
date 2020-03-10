@@ -28,10 +28,10 @@ def color_select(probabilities, palette):
     return palette[i] if i < len(palette) else palette[-1]
 
 
-def randomized_grid(h, w, scale):
+def randomized_grid(h, w, gradient, scale):
     assert (scale > 0)
 
-    r = scale//2
+    r = scale // 2
 
     grid = []
     #change the scale to change the 'step size'
@@ -41,11 +41,19 @@ def randomized_grid(h, w, scale):
             #Figure out what the differences is
             y = random.randint(-r, r) + i
             x = random.randint(-r, r) + j
+            if (y >= h):
+                y = h-1
+            if (x >= w):
+                x = w-1
+            if (y < 0):
+                y = 0
+            if (x < 0):
+                x = 0
 
-            #y = i#random.randint(-r, r) + i
-            #x = j#random.randint(-r, r) + j
-
-            grid.append((y % h, x % w))
+            # print(gradient.magnitude(y, x))
+            # likelihood of appearing based on magnitude
+            if random.uniform(0, 100) < gradient.magnitude(y, x):
+                grid.append((y % h, x % w))
 
     #Figure out what the differences is
     random.shuffle(grid)
