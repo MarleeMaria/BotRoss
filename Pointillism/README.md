@@ -9,5 +9,6 @@ You can find informations about the algorithm [here](https://medium.com/@matteor
 ```
 cd Pointillism
 pip3 install -r requirements.txt
-python3 main.py images/landscape.jpg --palette-size=20 --stroke-scale=10 --gradient-smoothing-radius=20 --canvas-height=10 --canvas-width=5
+python3 -m pip install Pillow
+python3 gui.py
 ```
