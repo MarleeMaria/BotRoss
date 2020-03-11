@@ -30,6 +30,28 @@ parser.add_argument('--limit-image-size', default=0, type=int, help="Limit the i
 
 args = parser.parse_args()
 
+class Stroke:
+    def __init__(self, start_x, start_y, end_x, end_y, color_well):
+        self.start_x = start_x
+        self.start_y = start_y
+        self.end_x = end_x
+        self.end_y = end_y
+        self.color_well = color_well
+
+def sort_strokes(strokes):
+    min_stroke = min(strokes, key=lambda x: (x.color_well, x.start_x))
+    sorted_strokes = [min_stroke]
+    n = len(strokes) - 1
+    strokes.remove(min_stroke)
+    while n > 0:
+        current = sorted_strokes[-1]
+        nxt = min(strokes, key=lambda x: (x.color_well, math.pow((x.start_x - current.end_x),2) + math.pow((x.start_y - current.end_y),2)))
+        sorted_strokes.append(nxt)
+        strokes.remove(nxt)
+        n -= 1
+    return sorted_strokes
+
+
 class mainRun:
     # @classmethod
     def run(self, brush, width, height, colors, file):
@@ -128,11 +150,9 @@ class mainRun:
         output_file = open("output.txt","w+")
         bar = progressbar.ProgressBar()
 
-        #List that holds each strok info based on their colour
-        printWList = []
-        colorList = palette.colorl()
-        for c in range(len(colorList)):
-            printWList.append([])
+        # get list of strokes
+        strokes = []
+        color_tuple_to_well = {tuple(color): well for well, color in enumerate(colors)}
 
         #print(colorList)
         for h in bar(range(0, len(grid), batch_size)):
@@ -145,12 +165,13 @@ class mainRun:
             color_probabilities = compute_color_probabilities(pixels, palette, k=200)
 
             for i, (y, x) in enumerate(grid[h:min(h + batch_size, len(grid))]):
-                #Get colour bellow?
+
+                # select color
                 color = color_select(color_probabilities[i], palette)
                 if color == [255, 255, 255]:
                     continue
-                #prints out RBG values for each strokes
-                #print(color)
+
+                # calculate length and angle
                 angle = math.degrees(gradient.direction(y, x)) + 90
                 length = int(round(MIN_STROKE + math.sqrt(STROKE_LENGTH* gradient.magnitude(y, x))))
 
@@ -178,7 +199,6 @@ class mainRun:
                 elif end_y > MAX_HEIGHT_CM:
                     end_y = MAX_HEIGHT_CM
 
-
                 # Round to nearest millimetre for output file purposes
                 start_x_rounded = round(start_x, 1)
                 start_y_rounded = round(MAX_HEIGHT_CM - start_y, 1)
@@ -192,31 +212,14 @@ class mainRun:
                 # sketch preview
                 cv2.line(res, (start_point), (end_point), color, stroke_scale)
 
-                #MJ CODE: Get the seprate colours to print one by one
-                #Now more dynamic to take in other colours
-                for i in range(len(colorList)):
-                    if color == colorList[i]:
-                        printWList[i].append([res, x, y, length, stroke_scale, angle, color, start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, i])
+                # append stroke to list
+                strokes.append(Stroke(start_x_rounded, start_y_rounded, end_x_rounded, end_y_rounded, color_tuple_to_well[tuple(color)]))
 
-        #Draws each stroke for White and then Black, also added to output file the strokes
-        #Comment out the White strokes to see final black on white painting
-        #print(printWList)
-        for col in range(0, len(printWList)):
-            for row in range(0, len(printWList[col])):
-                #printWList[col][row][6] == color
-                #printWList[col][row][11] == color well index
+        strokes = sort_strokes(strokes)
 
-                #Sorry just checking if my git now works
+        for stroke in strokes:
+            output_file.write("{},{},{},{},{}\n".format(stroke.start_x, stroke.start_y, stroke.end_x, stroke.end_y, stroke.color_well))
 
-                #Loop that will check for White
-                    #if white only Draw (if colour == 255,255,255)
-                if sum(printWList[col][row][6]) >= (255+255+255) / 2:
-                    pass
-                    #cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
-                    #else draw and write to output
-                else:
-                    # cv2.ellipse(printWList[col][row][0], (printWList[col][row][1], printWList[col][row][2]), (printWList[col][row][3], printWList[col][row][4]), printWList[col][row][5], 0, 360, printWList[col][row][6], -1, cv2.LINE_AA)
-                    output_file.write("{},{},{},{},{}\n".format(str(printWList[col][row][7]), str(printWList[col][row][8]), str(printWList[col][row][9]), str(printWList[col][row][10]), str(printWList[col][row][11])))
         output_file.write("#")
         output_file.close()
         # cv2.imshow("res", limit_size(res, 1080))
