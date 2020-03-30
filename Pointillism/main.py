@@ -137,7 +137,7 @@ class mainRun:
         #res = cv2.medianBlur(img, 11)
 
         #create black blank image
-        blank_image = np.zeros((MAX_HEIGHT_CM * PIXELS_PER_CM, MAX_WIDTH_CM * PIXELS_PER_CM,3), np.uint8)
+        blank_image = np.zeros((img.shape[0],img.shape[0],3), np.uint8)
         res = cv2.medianBlur(blank_image, 11)
 
         #fill blank image with white
@@ -181,6 +181,12 @@ class mainRun:
                 end_x  = (length / 2 * math.cos(math.radians(angle) + math.pi) + x) / img.shape[1] * WIDTH_CM
                 end_y = (length / 2 * math.sin(math.radians(angle) + math.pi) + y) / img.shape[0] * HEIGHT_CM + (MAX_HEIGHT_CM - HEIGHT_CM)
 
+                # hacky preview solution for previews
+                start_x_preview = (length / 2 * math.cos(math.radians(angle)) + x)
+                start_y_preview = (length / 2 * math.sin(math.radians(angle)) + y)
+                end_x_preview  = (length / 2 * math.cos(math.radians(angle) + math.pi) + x)
+                end_y_preview = (length / 2 * math.sin(math.radians(angle) + math.pi) + y)
+
                 # guards
                 if start_x < 0:
                     start_x = 0
@@ -206,8 +212,10 @@ class mainRun:
                 end_y_rounded = round(MAX_HEIGHT_CM - end_y, 1)
 
                 # calculate points for drawing preview
-                start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
-                end_point = round(end_x * PIXELS_PER_CM), round(end_y * PIXELS_PER_CM)
+                # start_point = round(start_x * PIXELS_PER_CM), round(start_y * PIXELS_PER_CM)
+                # end_point = round(end_x * PIXELS_PER_CM), round(end_y * PIXELS_PER_CM)
+                start_point = round(start_x_preview), round(start_y_preview)
+                end_point = round(end_x_preview), round(end_y_preview)
 
                 # sketch preview
                 cv2.line(res, (start_point), (end_point), color, stroke_scale)
