@@ -1,4 +1,4 @@
-numpy==1.13.3
+numpy==1.22.0
 opencv-python==3.4.0.12
 progressbar2==3.34.3
 python-utils==2.2.0
